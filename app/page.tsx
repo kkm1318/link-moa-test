@@ -1,25 +1,66 @@
-// app/page.tsx
-"use client"; // 클라이언트 컴포넌트로 선언
-// import { useRouter } from "next/router";
+"use client";
+import { signIn, useSession, signOut } from "next-auth/react";
+// import { signIn, useSession, getCsrfToken, signOut } from "next-auth/react";
+import { useEffect } from "react";
 import Image from "next/image";
-import kakaoIcon from "../public/kakao_login_large_narrow.png";
+import naverIcon from "../src/images/btnG_완성형.png";
+import kakaoIcon from "../src/images/kakao_login_large_narrow.png";
+import googleIcon from "../src/images/web_light_rd_SI@1x.png";
 
-export default function Home() {
-  // const router = useRouter();
+export default function LoginPage() {
+  const { data: session } = useSession();
+  // const csrfToken = getCsrfToken();
 
-  // 카카오 로그인 페이지로 리디렉션
-  const handleKakaoLogin = () => {
-    const kakaoAuthURL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}&response_type=code`;
-    window.location.href = kakaoAuthURL;
-  };
+  useEffect(() => {
+    console.log("data: ", session);
+  }, [session]);
 
   return (
     <div className="grid min-h-screen place-items-center">
       <div>
-        <h2 className="text-xl">로그인하세요</h2>
-        <button onClick={handleKakaoLogin}>
-          <Image src={kakaoIcon} alt="Kakao Login" width={180} height={50} />
-        </button>
+        {session ? (
+          <div>
+            <h2>
+              안녕하세요,{" "}
+              {session.user?.name ?? session.user?.email?.split("@")[0]} 님
+            </h2>
+            {/* <img src={session.user?.image} width={100} height={100} /> */}
+            <button
+              type="button"
+              style={{ border: "1px solid black", backgroundColor: "tomato" }}
+              onClick={() => signOut()}
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <div>
+            <button onClick={() => signIn("naver")}>
+              <Image
+                src={naverIcon}
+                alt="Naver Login"
+                width={180}
+                height={50}
+              />
+            </button>
+            <button onClick={() => signIn("kakao")}>
+              <Image
+                src={kakaoIcon}
+                alt="Kakao Login"
+                width={180}
+                height={50}
+              />
+            </button>
+            <button onClick={() => signIn("google")}>
+              <Image
+                src={googleIcon}
+                alt="Google Login"
+                width={180}
+                height={50}
+              />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
